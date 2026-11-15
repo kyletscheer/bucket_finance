@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bucket Finance – Automate Your Finances Flow Tracker</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- SEO + social previews -->
+    <meta name="description" content="A simpler way to handle money: map your paycheck into automated buckets and see where every dollar flows. Free, private, no account." />
+    <link rel="canonical" href="https://kylescheer.com/bucket_finance/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Kyle Scheer" />
+    <meta property="og:title" content="Bucket Finance – Automate Your Finances Flow Tracker" />
+    <meta property="og:description" content="A simpler way to handle money: map your paycheck into automated buckets and see where every dollar flows. Free, private, no account." />
+    <meta property="og:url" content="https://kylescheer.com/bucket_finance/" />
+    <meta property="og:image" content="https://kylescheer.com/bucket_finance/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Bucket Finance – Automate Your Finances Flow Tracker" />
+    <meta name="twitter:description" content="A simpler way to handle money: map your paycheck into automated buckets and see where every dollar flows. Free, private, no account." />
+    <meta name="twitter:image" content="https://kylescheer.com/bucket_finance/og-image.png" />
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Bucket Finance",
+  "url": "https://kylescheer.com/bucket_finance/",
+  "description": "A simpler way to handle money: map your paycheck into automated buckets and see where every dollar flows. Free, private, no account.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any (web browser)",
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "image": "https://kylescheer.com/bucket_finance/og-image.png",
+  "author": {
+    "@type": "Person",
+    "name": "Kyle Scheer",
+    "url": "https://kylescheer.com/"
+  }
+}
+</script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>💧 Bucket Finance Flow</h1>
+        <p>Tell your money where to go, one bucket at a time</p>
+      </div>
+
+      <div id="infoPanel" class="info-panel">
+        <div class="info-panel-header">
+          <div class="info-content">
+            <strong>The Bucket System:</strong> Think of your accounts as
+            buckets. Money flows from one to the next like a waterfall—fill
+            bucket 1 to its goal, then overflow to bucket 2, and so on.
+            <ul>
+              <li>
+                <strong>Order matters:</strong> Put essential accounts first
+                (checking buffer, emergency fund), then debts by interest rate,
+                then savings goals
+              </li>
+              <li>
+                <strong>Debts flow to $0:</strong> Use negative amounts for
+                debts. Set goal to $0 and watch the red bar shrink as you pay it
+                off
+              </li>
+              <li>
+                <strong>Monthly updates:</strong> Update your balances each
+                month and move money as the tool suggests
+              </li>
+            </ul>
+          </div>
+          <button class="close-btn" onclick="closeInfo()">×</button>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="addBucket()">
+          + Add Bucket
+        </button>
+        <button class="btn btn-secondary" onclick="showWizard()">
+          🧙 Setup Wizard
+        </button>
+        <button class="btn btn-secondary" onclick="loadExample()">
+          Load Example
+        </button>
+        <div class="export-dropdown">
+          <button class="btn btn-secondary" onclick="toggleExportMenu()">
+            📊 Export
+          </button>
+          <div id="exportMenu" class="export-menu">
+            <div class="export-option" onclick="exportToCSV()">
+              <span>📄</span>
+              <span>Export to CSV</span>
+            </div>
+
+            <div class="export-option" onclick="exportToJSON()">
+              <span>💾</span>
+              <span>Export to JSON</span>
+            </div>
+          </div>
+        </div>
+        <button
+          class="btn btn-danger"
+          onclick="clearAll()"
+          id="clearBtn"
+          style="display: none"
+        >
+          Clear All
+        </button>
+        <div class="view-toggle">
+          <button id="listViewBtn" class="active" onclick="switchView('list')">
+            📋 List
+          </button>
+          <button id="visualViewBtn" onclick="switchView('visual')">
+            📊 Visual
+          </button>
+        </div>
+      </div>
+
+      <div id="bucketsContainer" class="buckets-container"></div>
+
+      <div id="visualSummary" class="visual-summary" style="display: none">
+        <h3>💧 Money Flow Visualization</h3>
+
+        <div class="completion-ring">
+          <div class="ring-container">
+            <svg width="150" height="150">
+              <defs>
+                <linearGradient
+                  id="gradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop
+                    offset="0%"
+                    style="stop-color: #667eea; stop-opacity: 1"
+                  />
+                  <stop
+                    offset="100%"
+                    style="stop-color: #764ba2; stop-opacity: 1"
+                  />
+                </linearGradient>
+              </defs>
+              <circle class="ring-background" cx="75" cy="75" r="65"></circle>
+              <circle
+                id="ringProgress"
+                class="ring-progress"
+                cx="75"
+                cy="75"
+                r="65"
+                stroke-dasharray="408.4"
+                stroke-dashoffset="408.4"
+              ></circle>
+            </svg>
+            <div class="ring-text">
+              <div class="ring-percentage" id="ringPercentage">0%</div>
+              <div class="ring-label">Complete</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="category-breakdown" id="categoryBreakdown"></div>
+
+        <div class="waterfall-viz" id="waterfallViz"></div>
+      </div>
+
+      <div id="emptyState" class="empty-state">
+        <div class="empty-state-icon">💰</div>
+        <h3>No buckets yet</h3>
+        <p style="color: #666; margin-top: 8px">
+          Use the Setup Wizard to get started, or add buckets manually
+        </p>
+      </div>
+
+      <div id="summary" class="summary" style="display: none">
+        <h3>📊 Financial Summary</h3>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-label">Available to Flow</div>
+            <div class="summary-value" id="overflowAmount">$0</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Buckets Complete</div>
+            <div class="summary-value" id="completeCount">0 / 0</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Total Allocated</div>
+            <div class="summary-value" id="allocatedAmount">$0</div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <p>
+          <a
+            href="https://kyletscheer.medium.com/simplify-your-finances-using-the-bucket-system-312359e120d6"
+            target="_blank"
+            >Based on the Bucket Finance Flow system blog.</a
+          ><br /><br />Data saved locally in your browser
+        </p>
+        <p>
+          Made by
+          <a href="https://kylescheer.com" target="_blank">Kyle Scheer</a>
+        </p>
+        <p>
+          <a
+            href="https://www.github.com/kyletscheer/bucket_finance"
+            target="_blank"
+            >View Code on Github</a
+          >
+        </p>
+        <a
+          href="https://ko-fi.com/scheerapps"
+          target="_blank"
+          rel="noopener"
+          title="Support me on Ko-fi"
+        >
+          <br />
+          <img
+            height="36"
+            style="border: 0px; height: 36px"
+            src="https://storage.ko-fi.com/cdn/kofi5.png?v=6"
+            border="0"
+            alt="Buy Me a Coffee at ko-fi.com"
+          />
+        </a>
+      </footer>
+    </div>
+
+    <!-- Wizard Modal -->
+    <div id="wizardOverlay" class="wizard-overlay" style="display: none">
+      <div class="wizard-modal">
+        <div class="wizard-header">
+          <h2>Setup Wizard</h2>
+          <p>Let's set up your buckets in the right order</p>
+          <div class="wizard-progress">
+            <div class="wizard-progress-dot" data-step="0"></div>
+            <div class="wizard-progress-dot" data-step="1"></div>
+            <div class="wizard-progress-dot" data-step="2"></div>
+            <div class="wizard-progress-dot" data-step="3"></div>
+            <div class="wizard-progress-dot" data-step="4"></div>
+          </div>
+        </div>
+        <div class="wizard-content">
+          <!-- Step 0: Welcome -->
+          <div class="wizard-step active" data-step="0">
+            <h3>Welcome to Bucket Finance! 💧</h3>
+            <p>
+              This system helps you prioritize where your money should go. We'll
+              guide you through setting up your buckets in the optimal order
+              based on financial best practices.
+            </p>
+            <div class="wizard-tip">
+              <strong>Key Principle:</strong> Money flows from one bucket to the
+              next. Once bucket 1 reaches its goal, excess flows to bucket 2,
+              and so on. This ensures you're always funding your priorities in
+              the right order.
+            </div>
+            <p><strong>What you'll need:</strong></p>
+            <ul style="margin-left: 20px; color: #666">
+              <li>Your current account balances</li>
+              <li>Knowledge of your monthly expenses</li>
+              <li>Information about any debts (balances and interest rates)</li>
+            </ul>
+          </div>
+
+          <!-- Step 1: Monthly Expenses -->
+          <div class="wizard-step" data-step="1">
+            <h3>What are your monthly expenses?</h3>
+            <p>
+              This helps us calculate appropriate goals for your checking buffer
+              and emergency fund.
+            </p>
+            <div class="wizard-tip">
+              <strong>Tip:</strong> Include rent/mortgage, utilities, food,
+              transportation, insurance, and other recurring costs.
+            </div>
+            <div style="margin-top: 20px">
+              <label
+                style="
+                  display: block;
+                  margin-bottom: 8px;
+                  font-weight: 500;
+                  color: #333;
+                "
+                >Monthly Expenses ($)</label
+              >
+              <input
+                type="number"
+                id="monthlyExpenses"
+                placeholder="e.g., 3000"
+                style="font-size: 1.1rem; padding: 12px"
+              />
+            </div>
+          </div>
+
+          <!-- Step 2: Debts -->
+          <div class="wizard-step" data-step="2">
+            <h3>Do you have any debts?</h3>
+            <p>
+              Debts should be prioritized by interest rate. High-interest debts
+              (10%+) come first, followed by moderate (4-10%), then low interest
+              (0-4%).
+            </p>
+            <div class="wizard-options">
+              <div
+                class="wizard-option"
+                onclick="selectWizardOption(2, 'no-debts')"
+              >
+                <div class="wizard-option-icon">✅</div>
+                <div class="wizard-option-title">No Debts</div>
+                <div class="wizard-option-desc">Debt-free</div>
+              </div>
+              <div
+                class="wizard-option"
+                onclick="selectWizardOption(2, 'has-debts')"
+              >
+                <div class="wizard-option-icon">💳</div>
+                <div class="wizard-option-title">Yes, I Have Debts</div>
+                <div class="wizard-option-desc">I'll add them manually</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Retirement -->
+          <div class="wizard-step" data-step="3">
+            <h3>Retirement Savings</h3>
+            <p>
+              Do you have access to an employer retirement account (401k, 403b,
+              etc.) with an employer match?
+            </p>
+            <div class="wizard-tip">
+              <strong>Important:</strong> Employer matches are free money!
+              Always contribute enough to get the full match before focusing on
+              other goals.
+            </div>
+            <div class="wizard-options">
+              <div
+                class="wizard-option"
+                onclick="selectWizardOption(3, 'no-retirement')"
+              >
+                <div class="wizard-option-icon">❌</div>
+                <div class="wizard-option-title">No Match Available</div>
+                <div class="wizard-option-desc">No employer plan</div>
+              </div>
+              <div
+                class="wizard-option"
+                onclick="selectWizardOption(3, 'has-match')"
+              >
+                <div class="wizard-option-icon">🎯</div>
+                <div class="wizard-option-title">Yes, With Match</div>
+                <div class="wizard-option-desc">I'll add details</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Goals -->
+          <div class="wizard-step" data-step="4">
+            <h3>Other Savings Goals</h3>
+            <p>
+              Do you have any specific savings goals beyond emergency funds and
+              retirement?
+            </p>
+            <div class="wizard-options">
+              <div class="wizard-option" onclick="toggleWizardGoal('house')">
+                <div class="wizard-option-icon">🏠</div>
+                <div class="wizard-option-title">House Down Payment</div>
+              </div>
+              <div class="wizard-option" onclick="toggleWizardGoal('vacation')">
+                <div class="wizard-option-icon">✈️</div>
+                <div class="wizard-option-title">Vacation Fund</div>
+              </div>
+              <div class="wizard-option" onclick="toggleWizardGoal('car')">
+                <div class="wizard-option-icon">🚗</div>
+                <div class="wizard-option-title">Vehicle Purchase</div>
+              </div>
+              <div
+                class="wizard-option"
+                onclick="toggleWizardGoal('education')"
+              >
+                <div class="wizard-option-icon">🎓</div>
+                <div class="wizard-option-title">Education</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wizard-actions">
+            <button
+              class="btn btn-secondary"
+              onclick="prevWizardStep()"
+              id="wizardPrevBtn"
+              style="display: none"
+            >
+              ← Previous
+            </button>
+            <button
+              class="btn btn-primary"
+              onclick="nextWizardStep()"
+              id="wizardNextBtn"
+            >
+              Next →
+            </button>
+            <button
+              class="btn btn-primary"
+              onclick="finishWizard()"
+              id="wizardFinishBtn"
+              style="display: none"
+            >
+              Finish Setup
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
